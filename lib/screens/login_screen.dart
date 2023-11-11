@@ -1,4 +1,8 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:xgram/providers/user_provider.dart';
 import '../utils/colors.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -11,8 +15,6 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool _isLoading = false;
-
 
   @override
   Widget build(BuildContext context) {
@@ -54,23 +56,37 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(height: 24),
               InkWell(
                 //onTap: _login,
-                child: Container(
-                  child: _isLoading
-                      ? Center(
-                          child: CircularProgressIndicator(color: Colors.white),
-                        )
-                      : Text(
-                          'Log in',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                  width: double.infinity,
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
-                    color: primaryButtonColor,
-                  ),
-                ),
+                onTap: () {
+                  final email = _emailController.text.trim();
+                  final password = _passwordController.text.trim();
+                  if (email.isNotEmpty && password.isNotEmpty) {
+                    context.read<UserProvider>().login(email, password);
+                  }
+                  else{
+                    log('Email and password cannot be empty');
+                  }
+                },
+                child:
+                    Consumer<UserProvider>(builder: ((context, value, child) {
+                  return Container(
+                    child: value.isLoading
+                        ? Center(
+                            child:
+                                CircularProgressIndicator(color: Colors.white),
+                          )
+                        : Text(
+                            'Log in',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6),
+                      color: primaryButtonColor,
+                    ),
+                  );
+                })),
               ),
               SizedBox(height: 24),
               Row(
@@ -80,10 +96,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     "Don't have an account?",
                     style: TextStyle(fontWeight: FontWeight.w300),
                   ),
-                  SizedBox(width: 5,),
+                  SizedBox(
+                    width: 5,
+                  ),
                   GestureDetector(
                     onTap: () {
-                      // Add your navigation logic or action for sign-up here
+                  
                     },
                     child: Text(
                       "Sign up.",
