@@ -5,14 +5,14 @@ import 'package:provider/provider.dart';
 import 'package:xgram/providers/user_provider.dart';
 import '../utils/colors.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -60,10 +60,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   final email = _emailController.text.trim();
                   final password = _passwordController.text.trim();
                   if (email.isNotEmpty && password.isNotEmpty) {
-                    context
-                        .read<UserProvider>()
-                        .login(email, password, context);
-                  } else {
+                    context.read<UserProvider>().register(email, password, context);
+                  }
+                  else{
                     log('Email and password cannot be empty');
                   }
                 },
@@ -76,7 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 CircularProgressIndicator(color: Colors.white),
                           )
                         : Text(
-                            'Log in',
+                            'Create Account',
                             style: TextStyle(color: Colors.white),
                           ),
                     width: double.infinity,
@@ -94,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Don't have an account?",
+                    "Already have an account?",
                     style: TextStyle(fontWeight: FontWeight.w300),
                   ),
                   SizedBox(
@@ -102,11 +101,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      Provider.of<UserProvider>(context, listen: false)
-                          .navigateToRegisterPage(context);
+                           Provider.of<UserProvider>(context, listen: false)
+                          .navigateToLoginPage(context);
                     },
                     child: Text(
-                      "Sign up.",
+                      "Sign In.",
                       style: TextStyle(
                         fontWeight: FontWeight.w400,
                       ),
