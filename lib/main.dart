@@ -4,8 +4,13 @@ import 'providers/user_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/profile_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+Future<void> main() async{
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+);
   runApp(const MyApp());
 }
 
