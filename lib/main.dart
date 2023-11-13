@@ -26,13 +26,14 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => UserProvider()),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         routes: {
           '/': (context) => const HomeScreen(),
           '/login': (context) => const LoginScreen(),
           '/register': (context) => const RegisterScreen(),
           '/profile': (context) => const ProfileScreen(),
         },
-        initialRoute: '/login',
+        initialRoute: '/',
       ),
     );
   }
