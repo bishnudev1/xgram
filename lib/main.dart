@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
           '/register': (context) => const RegisterScreen(),
           '/profile': (context) => const ProfileScreen(),
         },
-        initialRoute: '/',
+        initialRoute: '/profile',
       ),
     );
   }
