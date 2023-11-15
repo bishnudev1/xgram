@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:xgram/providers/user_provider.dart';
 
 import '../services/auth_services.dart';
 import '../utils/bottom_navbar.dart';
@@ -67,6 +69,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
       bottomNavigationBar: bottomNavigationBar(context),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Provider.of<UserProvider>(context, listen: false).logout(context);
+        },
+        backgroundColor: Colors.blue.shade900,
+        child: const Icon(
+          Icons.logout,
+          color: Colors.white,
+        ),
+      )
     );
   }
 

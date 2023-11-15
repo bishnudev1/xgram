@@ -6,17 +6,23 @@ import 'package:xgram/utils/img_picker.dart';
 import 'package:xgram/utils/toast.dart';
 
 import '../models/post.dart';
+import '../models/user.dart';
 import 'auth_services.dart';
 
 class PostServices {
   final ImagePick imagePick;
   final AuthServices authServices;
 
+    UserModel? _user;
+
   PostServices({required this.imagePick, required this.authServices});
 
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final CollectionReference _firestore =
       FirebaseFirestore.instance.collection("posts");
+
+  final CollectionReference _firestore1 =
+      FirebaseFirestore.instance.collection("users");
 
   Future<String?> uploadToFirebaseStorage(
       {required File image, required String fileName}) async {
@@ -33,11 +39,16 @@ class PostServices {
   }
 
   Future<bool> uploadPostDesc(
-      {required name, required desc, required imgUrl}) async {
+      {required desc,
+      required imgUrl,
+      required name,
+      required photoUrl}) async {
     try {
-      final resp = await _firestore.add(
-          Post(name: name, title: desc, caption: desc, imageUrl: imgUrl)
-              .toJson());
+      final resp = await _firestore.add(Post(user: {
+        "name": name,
+        "photoUrl": photoUrl,
+      }, title: desc, caption: desc, imageUrl: imgUrl)
+          .toJson());
       log("RESP: $resp");
       return true;
     } catch (e) {
@@ -47,8 +58,17 @@ class PostServices {
     }
   }
 
+
   Future<bool> uploadPostToXgram({required desc}) async {
     try {
+
+      final profile = await authServices.getUser();
+
+      if(profile == null){
+        showToast("Please Login First");
+        return false;
+      }
+
       final imagePath = await imagePick.uploadedFile(desc: desc);
 
       if (imagePick.image == null) {
@@ -63,10 +83,7 @@ class PostServices {
           showToast("Error Uploading Image");
           return false;
         } else {
-          final resp = await uploadPostDesc(
-              name: authServices.auth.currentUser!.displayName,
-              desc: desc,
-              imgUrl: url);
+          final resp = await uploadPostDesc(desc: desc, imgUrl: url, name: profile.displayName, photoUrl: profile.photoUrl);
           showToast("Post Uploaded Successfully");
           return true;
         }

@@ -10,8 +10,8 @@ class UserProvider extends ChangeNotifier {
   UserModel? _user;
   UserModel? get user => _user;
 
-  User? _fireUser;
-  User? get fireUser => _fireUser;
+  // User? _fireUser;
+  // User? get fireUser => _fireUser;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -23,8 +23,8 @@ class UserProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      _user = await authServices.login(email, password);
-      if (_user == null) {
+      final resp = await authServices.login(email, password);
+      if (resp == null) {
         _isLoading = false;
         notifyListeners();
         log('Login failed');
@@ -43,19 +43,19 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> register(
-      String email, String password, BuildContext context) async {
+  Future<void> register(String email, String password, BuildContext context,
+      String displayName) async {
     _isLoading = true;
     notifyListeners();
     try {
-      _user = await authServices.register(email, password);
-      if (_user == null) {
+      final resp = await authServices.register(
+          email: email, password: password, displayName: displayName);
+      if (resp == false) {
         _isLoading = false;
         notifyListeners();
-        log('Register failed');
-        return;
       } else {
-        log('REgister successful');
+        _isLoading = false;
+         notifyListeners();
         Navigator.pushNamedAndRemoveUntil(
             context, '/profile', (route) => false);
       }
@@ -68,23 +68,16 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-Future<void> getUserData() async {
-  try {
-    final resp = await authServices.getUser();
-    log("Email: ${resp.email}");
-    _fireUser = resp;
-    notifyListeners();
-    //return UserModel.fromMap(resp); // Assuming resp is a Map<String, dynamic>
-  } catch (e) {
-    log(e.toString());
-    _fireUser = null;
-    notifyListeners();
-    //return UserModel(); // Return a default user or handle the error accordingly
+  Future<void> getUserData() async {
+    try {
+      final profile = await authServices.getUser();
+      _user = profile;
+    } catch (e) {
+      log(e.toString());
+      _user = null;
+      notifyListeners();
+    }
   }
-}
-
-
-
 
   navigateToRegisterPage(BuildContext context) {
     Navigator.pushNamed(context, '/register');
@@ -92,5 +85,14 @@ Future<void> getUserData() async {
 
   navigateToLoginPage(BuildContext context) {
     Navigator.pushNamed(context, '/login');
+  }
+
+  Future<void> logout(BuildContext context) async {
+    try {
+      await authServices.logout();
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    } catch (e) {
+      log(e.toString());
+    }
   }
 }

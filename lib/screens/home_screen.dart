@@ -25,7 +25,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.getUserData();
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -46,87 +45,111 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          child: Column(
-            children: [
-              StoryBar(),
-              const SizedBox(
-                height: 20,
+      body: FutureBuilder(
+          future: userProvider.getUserData(),
+          builder: (context, AsyncSnapshot snapshot) {
+            if (snapshot.hasError) {
+              return const Center(
+                child: Text("Something went wrong!"),
+              );
+            }
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            return SafeArea(
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                child: Consumer<UserProvider>(
+                  builder: (context, value, child) {
+                    return Column(
+                      children: [
+                        StoryBar(
+                            // context: context,
+                            // userImage: value.user!.photoUrl,
+                            ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        StreamBuilder(
+                          stream: _firestore,
+                          builder: (context,
+                              AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>>
+                                  snapshot) {
+                            if (snapshot.hasError) {
+                              return const Center(
+                                child: Text(
+                                  "Something went wrong!",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15.0,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              );
+                            }
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                            if (snapshot.hasData) {
+                              final List<Post> data = List.from(snapshot
+                                  .data!.docs
+                                  .map((e) => Post.fromJson(e.data()))
+                                  .toList());
+                              log(data.length.toString());
+                              return Expanded(
+                                child: ListView.builder(
+                                  itemCount: data.length,
+                                  itemBuilder: (context, index) {
+                                    return ProfileCard(
+                                        image: data[index].user['photoUrl'],
+                                        name: data[index].user['name'],
+                                        postImage: data[index].imageUrl,
+                                        caption: data[index].caption,
+                                        context: context);
+                                  },
+                                ),
+                              );
+                            }
+                            return Center(
+                              child: Text(
+                                "No Data!",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15.0,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
-              StreamBuilder(
-                stream: _firestore,
-                builder: (context,
-                    AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>>
-                        snapshot) {
-                  if (snapshot.hasError) {
-                    return const Center(
-                      child: Text(
-                        "Something went wrong!",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 15.0,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    );
-                  }
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  if (snapshot.hasData) {
-                    final List<Post> data = List.from(snapshot.data!.docs
-                        .map((e) => Post.fromJson(e.data()))
-                        .toList());
-                    log(data.length.toString());
-                    return Expanded(
-                      child: ListView.builder(
-                        itemCount: data.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 20),
-                            child: ProfileCard(
-                                name: "bishnudev_ig",
-                                caption: data[index].caption.toString(),
-                                image: data[index].imageUrl.toString(),
-                                context: context),
-                          );
-                        },
-                      ),
-                    );
-                  }
-                  return Center(
-                    child: Text(
-                      "No Data!",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15.0,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
+            );
+          }),
       bottomNavigationBar: bottomNavigationBar(context),
+      floatingActionButton: FloatingActionButton(onPressed: () {
+        Provider.of<UserProvider>(context, listen: false).logout(context);
+      }),
     );
   }
 
   Widget ProfileCard(
-      {required name,
-      required image,
+      {required image,
       required caption,
+      required postImage,
+      required name,
       required,
       required BuildContext context}) {
     return Consumer<UserProvider>(
       builder: (context, value, child) {
-        return
-        Column(
+        return Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Padding(
@@ -148,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(value.fireUser!.email.toString(),
+                          Text(name,
                               style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 15.0,
@@ -174,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(
               height: 10,
             ),
-            Image.network(image,
+            Image.network(postImage,
                 width: MediaQuery.of(context).size.width, fit: BoxFit.cover),
             const SizedBox(
               height: 10,
@@ -304,36 +327,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  DecoratedBox(
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
+                  Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                        border: Border.all(
                           color: Colors.white,
-                          blurRadius: 1.0,
-                          spreadRadius: 2.0,
-                          offset: Offset(0, 0),
+                          width: 1,
                         ),
-                      ],
-                    ),
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black,
-                            blurRadius: 1.0,
-                            spreadRadius: 2.0,
-                            offset: Offset(0, 0),
-                          ),
-                        ],
-                      ),
-                      child: const CircleAvatar(
-                        radius: 40,
-                        backgroundImage: NetworkImage(
-                            "https://avatars.githubusercontent.com/u/91979889?s=400&u=187ad39fe0973c24808f65c92b7800e9fb10271f&v=4"),
-                      ),
+                        borderRadius: BorderRadius.circular(150)
+                        // boxShadow: [
+                        //   BoxShadow(
+                        //     color: Colors.black,
+                        //     blurRadius: 1.0,
+                        //     spreadRadius: 2.0,
+                        //     offset: Offset(0, 0),
+                        //   ),
+                        // ],
+                        ),
+                    child: const CircleAvatar(
+                      radius: 30,
+                      backgroundImage: NetworkImage(
+                          "https://avatars.githubusercontent.com/u/91979889?s=400&u=187ad39fe0973c24808f65c92b7800e9fb10271f&v=4"),
                     ),
                   ),
                   const SizedBox(

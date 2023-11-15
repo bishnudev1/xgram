@@ -1,21 +1,24 @@
 class UserModel {
   String? displayName;
   String? email;
-  String? uid;
+  late bool isVerified;
+  late String photoUrl;
 
-  UserModel({this.displayName, this.email, this.uid});
+  UserModel({this.displayName, this.email, this.isVerified = false, this.photoUrl = ""});
 
   UserModel.fromMap(Map<String, dynamic> data) {
     displayName = data['displayName'];
     email = data['email'];
-    uid = data['uid'];
+    isVerified = data['isVerified'] ?? false; // Use default value if not present
+    photoUrl = data['photoUrl'] ?? ""; // Use default value if not present
   }
 
   Map<String, dynamic> toMap() {
     return {
       'displayName': displayName,
       'email': email,
-      'uid': uid,
+      'isVerified': isVerified,
+      'photoUrl': photoUrl,
     };
   }
 }

@@ -15,6 +15,7 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _displayNameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +35,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
               //   height: 64,
               //   width: 64,
               // ),
-              const Text("Xgram", style: TextStyle(fontSize: 32, color: primaryColor),),
+              const Text(
+                "Xgram",
+                style: TextStyle(fontSize: 32, color: primaryColor),
+              ),
               const SizedBox(height: 64),
+              TextField(
+                controller: _displayNameController,
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.email_outlined),
+                  hintText: 'Enter your username...',
+                ),
+                keyboardType: TextInputType.name,
+              ),
+              const SizedBox(height: 24),
               TextField(
                 controller: _emailController,
                 decoration: const InputDecoration(
@@ -60,10 +73,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 onTap: () {
                   final email = _emailController.text.trim();
                   final password = _passwordController.text.trim();
+                  final displayName = _displayNameController.text.trim();
                   if (email.isNotEmpty && password.isNotEmpty) {
-                    context.read<UserProvider>().register(email, password, context);
-                  }
-                  else{
+                    context
+                        .read<UserProvider>()
+                        .register(email, password, context, displayName);
+                  } else {
                     log('Email and password cannot be empty');
                   }
                 },
@@ -102,7 +117,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
-                           Provider.of<UserProvider>(context, listen: false)
+                      Provider.of<UserProvider>(context, listen: false)
                           .navigateToLoginPage(context);
                     },
                     child: const Text(
