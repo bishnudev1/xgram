@@ -27,33 +27,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: 64),
-              Image.asset(
-                'assets/images/xgram.png',
-                color: primaryColor,
-                height: 64,
-                width: 64,
-              ),
-              SizedBox(height: 64),
+              const SizedBox(height: 64),
+              // Image.asset(
+              //   'assets/images/xgram.png',
+              //   color: primaryColor,
+              //   height: 64,
+              //   width: 64,
+              // ),
+              const Text("Xgram", style: TextStyle(fontSize: 32, color: primaryColor),),
+              const SizedBox(height: 64),
               TextField(
                 controller: _emailController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.email_outlined),
                   hintText: 'Enter your email...',
                 ),
                 keyboardType: TextInputType.emailAddress,
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               TextField(
                 controller: _passwordController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.lock_clock_outlined),
                   hintText: 'Enter your password...',
                 ),
                 keyboardType: TextInputType.text,
                 obscureText: true,
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               InkWell(
                 //onTap: _login,
                 onTap: () {
@@ -69,15 +70,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child:
                     Consumer<UserProvider>(builder: ((context, value, child) {
                   return Container(
-                    child: value.isLoading
-                        ? Center(
-                            child:
-                                CircularProgressIndicator(color: Colors.white),
-                          )
-                        : Text(
-                            'Create Account',
-                            style: TextStyle(color: Colors.white),
-                          ),
                     width: double.infinity,
                     alignment: Alignment.center,
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -85,18 +77,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       borderRadius: BorderRadius.circular(6),
                       color: primaryButtonColor,
                     ),
+                    child: value.isLoading
+                        ? const Center(
+                            child:
+                                CircularProgressIndicator(color: Colors.white),
+                          )
+                        : const Text(
+                            'Create Account',
+                            style: TextStyle(color: Colors.white),
+                          ),
                   );
                 })),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
+                  const Text(
                     "Already have an account?",
                     style: TextStyle(fontWeight: FontWeight.w300),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     width: 5,
                   ),
                   GestureDetector(
@@ -104,7 +105,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                            Provider.of<UserProvider>(context, listen: false)
                           .navigateToLoginPage(context);
                     },
-                    child: Text(
+                    child: const Text(
                       "Sign In.",
                       style: TextStyle(
                         fontWeight: FontWeight.w400,

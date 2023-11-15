@@ -21,14 +21,13 @@ BottomNavigationBar bottomNavigationBar(BuildContext context) {
           }
           break;
         case 1:
-          () {
-            log("Hello");
-          };
+          log("Hello");
           break;
         case 2:
-          () {
-            log("Hello");
-          };
+          if (currentRoute != "/add-post") {
+            Navigator.pushNamed(
+                context, "/add-post");
+          }
           break;
         case 3:
           () {
@@ -43,7 +42,7 @@ BottomNavigationBar bottomNavigationBar(BuildContext context) {
           break;
       }
     },
-    items: <BottomNavigationBarItem>[
+    items: const <BottomNavigationBarItem>[
       BottomNavigationBarItem(
         icon: Icon(Icons.house, color: Colors.white, size: 28),
         label: '',

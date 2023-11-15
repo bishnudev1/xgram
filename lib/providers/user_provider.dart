@@ -1,13 +1,17 @@
 import 'dart:developer';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:xgram/models/user.dart' as UserModel;
+import 'package:xgram/models/user.dart';
 
 import '../services/auth_services.dart';
 
 class UserProvider extends ChangeNotifier {
-  UserModel.User? _user;
-  UserModel.User? get user => _user;
+  UserModel? _user;
+  UserModel? get user => _user;
+
+  User? _fireUser;
+  User? get fireUser => _fireUser;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -64,11 +68,23 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  getUserData() {
-    final resp = authServices.getUser();
-    _user = UserModel.User.fromMap(resp);
+Future<void> getUserData() async {
+  try {
+    final resp = await authServices.getUser();
+    log("Email: ${resp.email}");
+    _fireUser = resp;
     notifyListeners();
+    //return UserModel.fromMap(resp); // Assuming resp is a Map<String, dynamic>
+  } catch (e) {
+    log(e.toString());
+    _fireUser = null;
+    notifyListeners();
+    //return UserModel(); // Return a default user or handle the error accordingly
   }
+}
+
+
+
 
   navigateToRegisterPage(BuildContext context) {
     Navigator.pushNamed(context, '/register');

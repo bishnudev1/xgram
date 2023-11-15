@@ -1,11 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:developer';
-import 'package:xgram/models/user.dart' as UserModel;
+import 'package:xgram/models/user.dart';
 
 class AuthServices {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseAuth get auth => _auth;
 
-  Future<UserModel.User?> login(String email, String password) async {
+  bool get isSignedIn {
+    return _auth.currentUser != null ? true : false;
+  }
+
+  Future<UserModel?> login(String email, String password) async {
     try {
       UserCredential result = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
@@ -21,14 +26,14 @@ class AuthServices {
         'pincode': '', // Get this data from the user profile if available
         'uid': result.user?.uid,
       };
-      return UserModel.User.fromMap(data);
+      return UserModel.fromMap(data);
     } catch (e) {
       log(e.toString());
       return null;
     }
   }
 
-  Future<UserModel.User?> register(String email, String password) async {
+  Future<UserModel?> register(String email, String password) async {
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
@@ -44,7 +49,7 @@ class AuthServices {
         'pincode': '', // Get this data from the user profile if available
         'uid': result.user?.uid,
       };
-      return UserModel.User.fromMap(data);
+      return UserModel.fromMap(data);
     } catch (e) {
       log(e.toString());
       return null;
@@ -58,6 +63,7 @@ class AuthServices {
   getUser() async {
     try {
       final currentUser = _auth.currentUser;
+      log(currentUser!.email.toString());
       return currentUser;
     } catch (e) {
       log(e.toString());
